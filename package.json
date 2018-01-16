@@ -1,0 +1,40 @@
+{
+  "name": "equaly.io-backend",
+  "version": "0.0.1",
+  "description": "Backend for equaly.io application",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "nodemon": "nodemon --watch server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olo2552/equaly.io-backend.git"
+  },
+  "keywords": [
+    "Steem",
+    "SteemConnect",
+    "Redis",
+    "Node",
+    "Hapi"
+  ],
+  "author": "Aleksander Wielgorski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/olo2552/equaly.io-backend/issues"
+  },
+  "homepage": "https://github.com/olo2552/equaly.io-backend#readme",
+  "dependencies": {
+    "hapi": "^17.2.0",
+    "ioredis": "^3.2.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.15.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "nodemon": "^1.14.11"
+  }
+}
