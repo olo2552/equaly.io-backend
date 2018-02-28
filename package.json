@@ -2,10 +2,11 @@
   "name": "equaly.io-backend",
   "version": "0.0.1",
   "description": "Backend for equaly.io application",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "nodemon": "nodemon --watch server.js"
+    "test": "jest --watch",
+    "dev": "nodemon .\\bin\\www",
+    "coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,9 @@
     "dotenv": "^5.0.0",
     "express": "^4.16.2",
     "ioredis": "^3.2.2",
+    "jest-extended": "^0.6.0",
+    "joi": "^13.1.2",
+    "luxon": "^0.5.3",
     "morgan": "^1.9.0",
     "passport": "^0.4.0",
     "passport-oauth2": "^1.4.0",
@@ -38,11 +42,14 @@
     "serve-favicon": "^2.4.5"
   },
   "devDependencies": {
+    "axios-mock-adapter": "^1.14.0",
     "eslint": "^4.15.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
-    "nodemon": "^1.14.11"
+    "jest": "^22.4.2",
+    "nodemon": "^1.14.11",
+    "redis-mock": "^0.21.0"
   }
 }
