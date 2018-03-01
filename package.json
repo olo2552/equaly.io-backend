@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --watch",
     "dev": "nodemon .\\bin\\www",
-    "coverage": "jest --coverage"
+    "test-coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
