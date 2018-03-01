@@ -57,3 +57,5 @@ typings/
 # dotenv environment variables
 .env
 
+# jetbrains IDE metadata
+.idea
