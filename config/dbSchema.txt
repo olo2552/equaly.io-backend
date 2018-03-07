@@ -1,25 +1,15 @@
-User:
-  username (String) (ID)
-  // WARNING
-  // both access_token & refresh_token are JWTs, which contains username in the payload
-  // following, there is no need to encrypt username for better seurity
-  // => if you have token, you have username too
-  access_token (Set[String]) 
-  refresh_token (String)
-  
-  Presets:
-    Categories
-  
-  Posts:
-    Category:
-      Posts(String | Set[String]) // to concider
-      // there is significantly more operations operated TO the server than from the server
-
 API:
-access_tokens.{username} | Set
 users | Set
+
+access_tokens.{username} | Hash
+  {access_token}: expiry_date
+
 {username}.refresh_token | String
 
-posts.{username}.{tag}.{startingTimePeriod} | Set | expiry time 7 days
+seenPosts.{username}.{tag}.{startingTimePeriod} | Set | expiry time 7 days
 
 presets.{username} | Hash
+
+preset.{username}.{preset} | Set
+
+savedPosts.{username} | List
