@@ -1,16 +1,15 @@
 require('dotenv').config();
 
 const Redis = require('ioredis');
-const Joi = require('joi');
-
-const { checkUserTokenFactory } = require('../isUserTokenInDB');
 
 const mockRedis = new Redis({
   host: process.env.DB_MOCK_HOST,
   port: process.env.DB_MOCK_PORT,
 });
 
-const checkUserToken = checkUserTokenFactory(mockRedis)(Joi);
+const { checkUserTokenFactory } = require('../isUserTokenInDB');
+
+const checkUserToken = checkUserTokenFactory(mockRedis);
 
 /* eslint-disable no-undef */
 describe('checkUserToken', () => {
@@ -18,7 +17,7 @@ describe('checkUserToken', () => {
   const usernamePattern = 'olo2552';
 
   beforeEach(() => {
-    mockRedis.sadd(`access_tokens.${usernamePattern}`, jwtPattern);
+    mockRedis.hset(`access_tokens.${usernamePattern}`, jwtPattern, Date.now() + 340000000);
     mockRedis.set(`refresh_token.${usernamePattern}`, jwtPattern);
   });
 
