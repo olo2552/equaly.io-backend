@@ -1,35 +1,33 @@
 const Redis = require('../../config/redisInstance');
-const Joi = require('joi');
+
+const joiVaidate = require('../../utils/joiValidate');
 
 const usernameSchema = require('../../utils/validationSchemas/usernameSchema');
 const tokenSchema = require('../../utils/validationSchemas/tokenSchema');
 const tokenTypeSchema = require('../../utils/validationSchemas/tokenTypeSchema');
+const tokenExpiryDateSchema = require('../../utils/validationSchemas/tokenExpiryDateSchema');
 
 // the code is very verbose, possible later refactor:
-// axtract tokenType cases into different funcs and just group them here
+// extract tokenType cases into different funcs and just group them here
 // also validate util should be strongly concerned
 
-const setUserToken = redis => joi =>
+const setUserToken = redis =>
   tokenType =>
-    (username, token) => {
-
-      const tokenTypeValidation = joi.validate(tokenType, tokenTypeSchema);
-      if (tokenTypeValidation.error !== null) {
-        throw new Error(tokenTypeValidation.error.message);
-      }
-
-      const tokenValidation = joi.validate(token, tokenSchema);
-      if (tokenValidation.error !== null) {
-        throw new Error(tokenValidation.error.message);
-      }
-
-      const usernameValidation = joi.validate(username, usernameSchema);
-      if (usernameValidation.error !== null) {
-        throw new Error(usernameValidation.error.message);
+    (username, token, tokenExpiryDate) => {
+      if (!joiVaidate([
+        [tokenType, tokenTypeSchema],
+        [username, usernameSchema],
+        [token, tokenSchema],
+      ])) {
+        throw Error('One of the passed parameters is not valid');
       }
 
       if (tokenType === 'accessToken') {
-        redis.sadd(`access_tokens.${username}`, token);
+        if (!joiVaidate([[tokenExpiryDate, tokenExpiryDateSchema]])) {
+          throw Error('One of the passed parameters is not valid');
+        }
+
+        redis.hset(`access_tokens.${username}`, token, tokenExpiryDate);
       } else {
         redis.set(`refresh_token.${username}`, token);
       }
@@ -38,6 +36,6 @@ const setUserToken = redis => joi =>
     };
 
 module.exports = {
-  setUserToken: setUserToken(Redis)(Joi),
+  setUserToken: setUserToken(Redis),
   setUserTokenFactory: setUserToken,
 };

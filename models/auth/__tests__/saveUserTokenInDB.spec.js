@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const Redis = require('ioredis');
-const Joi = require('joi');
 
 const mockRedis = new Redis({
   host: process.env.DB_MOCK_HOST,
@@ -10,39 +9,37 @@ const mockRedis = new Redis({
 
 const { setUserTokenFactory } = require('../saveUserTokenInDB');
 
-const setUserToken = setUserTokenFactory(mockRedis)(Joi);
+const setUserToken = setUserTokenFactory(mockRedis);
 
 /* eslint-disable no-undef */
 describe('setUserToken', () => {
   const jwtPattern = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ';
   const usernamePattern = 'olo2552';
   const accessTokenSuccessMessage = 'accessToken successfully set!';
+  const tokenExpiryDatePattern = Date.now() + 300000;
 
   beforeEach(() => {
     mockRedis.flushdb();
   });
 
   it('should work without crashing', () => {
-    expect(setUserToken('accessToken')(usernamePattern, jwtPattern));
+    expect(setUserToken('refreshToken')(usernamePattern, jwtPattern));
   });
 
-  it('should throw error for incorrect tokenType', () => {
+
+  it('should throw error for incorrect data', () => {
     expect(() => setUserToken('userToken')(usernamePattern, jwtPattern))
       .toThrowError();
 
     expect(() => setUserToken('')('$56346', jwtPattern))
       .toThrowError();
-  });
 
-  it('should throw error for incorrect username', () => {
-    expect(() => setUserToken('accessToken')('', jwtPattern))
+    expect(() => setUserToken('accessToken')('', jwtPattern, tokenExpiryDatePattern))
       .toThrowError();
 
-    expect(() => setUserToken('accessToken')('$56346', jwtPattern))
+    expect(() => setUserToken('accessToken')('$56346', jwtPattern, tokenExpiryDatePattern))
       .toThrowError();
-  });
 
-  it('should throw Error for incorrect token', () => {
     expect(() => setUserToken('accessToken')('olo2552', ''))
       .toThrowError();
 
@@ -51,16 +48,16 @@ describe('setUserToken', () => {
   });
 
   it('should return success message for correct data', () => {
-    expect(setUserToken('accessToken')('olo2552', jwtPattern))
+    expect(setUserToken('accessToken')('olo2552', jwtPattern, tokenExpiryDatePattern))
       .toBe(accessTokenSuccessMessage);
   });
 
-  it('should save Set when given accessToken', () => {
-    setUserToken('accessToken')(usernamePattern, jwtPattern);
+  it('should save Hash when given accessToken', () => {
+    setUserToken('accessToken')(usernamePattern, jwtPattern, tokenExpiryDatePattern);
 
     expect.assertions(1);
     return expect(mockRedis.type(`access_tokens.${usernamePattern}`))
-      .resolves.toBe('set');
+      .resolves.toBe('hash');
   });
 
   it('should save string when given refreshToken', () => {
@@ -69,5 +66,23 @@ describe('setUserToken', () => {
     expect.assertions(1);
     return expect(mockRedis.type(`refresh_token.${usernamePattern}`))
       .resolves.toBe('string');
+  });
+
+  it('should reject incorrect expiryDate for access token', () => {
+    expect(() => setUserToken('accessToken')(usernamePattern, jwtPattern, Date.now() - 10000))
+      .toThrowError();
+  });
+
+  it('should save correct data', () => {
+    setUserToken('refreshToken')(usernamePattern, jwtPattern);
+    setUserToken('accessToken')(usernamePattern, jwtPattern, tokenExpiryDatePattern);
+
+    expect.assertions(2);
+
+    expect(mockRedis.hget(`access_tokens.${usernamePattern}`, jwtPattern))
+      .resolves.toBe(tokenExpiryDatePattern);
+
+    return expect(mockRedis.get(`refresh_token.${usernamePattern}`))
+      .resolves.toBe(jwtPattern);
   });
 });
